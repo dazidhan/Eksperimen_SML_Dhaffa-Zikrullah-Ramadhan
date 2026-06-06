@@ -18,10 +18,12 @@ def load_and_preprocess_data(file_path):
     df = df.drop_duplicates()
     
     for col in df.columns:
-        if df[col].dtype == 'object' or df[col].dtype == 'bool':
-            df[col] = df[col].fillna(df[col].mode()[0])
-        else:
+        # Pengecekan eksplisit: Jika kolom berupa angka (int/float), gunakan median
+        if df[col].dtype in ['int64', 'float64', 'int32', 'float32']:
             df[col] = df[col].fillna(df[col].median())
+        else:
+            # Selain angka (termasuk string, object, boolean), gunakan mode/modus
+            df[col] = df[col].fillna(df[col].mode()[0])
             
     # 3. Encoding Data Kategorikal
     df['Weekend'] = df['Weekend'].astype(int)
