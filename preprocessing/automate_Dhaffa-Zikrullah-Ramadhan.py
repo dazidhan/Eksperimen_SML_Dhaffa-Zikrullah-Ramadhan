@@ -4,28 +4,19 @@ from sklearn.model_selection import train_test_split
 import os
 
 def load_and_preprocess_data(file_path):
-    """
-    Fungsi untuk memuat dataset, membersihkan data, melakukan encoding,
-    membagi dataset, dan menstandarisasi fitur secara otomatis.
-    """
     print("Memulai proses data preprocessing otomatis...")
     
-    # 1. Memuat Dataset
     df = pd.read_csv(file_path)
     print(f"Data dimuat dengan dimensi awal: {df.shape}")
     
-    # 2. Membersihkan Data Kosong & Duplikat
     df = df.drop_duplicates()
     
     for col in df.columns:
-        # Pengecekan eksplisit: Jika kolom berupa angka (int/float), gunakan median
         if df[col].dtype in ['int64', 'float64', 'int32', 'float32']:
             df[col] = df[col].fillna(df[col].median())
         else:
-            # Selain angka (termasuk string, object, boolean), gunakan mode/modus
             df[col] = df[col].fillna(df[col].mode()[0])
             
-    # 3. Encoding Data Kategorikal
     df['Weekend'] = df['Weekend'].astype(int)
     df['Revenue'] = df['Revenue'].astype(int)
     
@@ -34,12 +25,10 @@ def load_and_preprocess_data(file_path):
     
     df = pd.get_dummies(df, columns=['VisitorType'], drop_first=True)
     
-    # 4. Membagi Data (Train-Test Split)
     X = df.drop('Revenue', axis=1)
     y = df['Revenue']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
     
-    # 5. Standarisasi Fitur Numerik (Scaling)
     numeric_cols = ['Administrative', 'Administrative_Duration', 'Informational', 
                     'Informational_Duration', 'ProductRelated', 'ProductRelated_Duration', 
                     'BounceRates', 'ExitRates', 'PageValues', 'SpecialDay']
@@ -51,14 +40,9 @@ def load_and_preprocess_data(file_path):
     print("Data preprocessing selesai! Data siap untuk dilatih.")
     return X_train, X_test, y_train, y_test
 
-# Blok ini hanya akan dieksekusi jika file ini dijalankan langsung,
-# sangat berguna untuk testing.
-
 if __name__ == "__main__":
-    # Menggunakan '../' karena dataset berada di luar folder 'preprocessing'
     PATH_DATA = '../online_shoppers_intention.csv'
     
-    # Folder output akan otomatis dibuat di dalam folder 'preprocessing'
     OUTPUT_DIR = 'dataset_processed'
     
     if not os.path.exists(OUTPUT_DIR):
@@ -67,7 +51,6 @@ if __name__ == "__main__":
     try:
         X_train, X_test, y_train, y_test = load_and_preprocess_data(PATH_DATA)
         
-        # Menyimpan hasil 
         X_train.to_csv(f"{OUTPUT_DIR}/X_train.csv", index=False)
         X_test.to_csv(f"{OUTPUT_DIR}/X_test.csv", index=False)
         y_train.to_csv(f"{OUTPUT_DIR}/y_train.csv", index=False)
